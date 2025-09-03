@@ -1,0 +1,6 @@
+@DigLabAPI_HostAddress = http://localhost:5126
+
+GET {{DigLabAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
