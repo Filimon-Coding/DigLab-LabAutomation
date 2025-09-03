@@ -67,18 +67,6 @@ This project is split into two parts:
   **React Router v7 + TypeScript**.  
 - For now, we’ll keep it simple and add routing manually later.
 ```
-
-
-
-
----
-
-# Notes : 
-
---- 
-
-
-
 ---
 
 # 📝 DigLab – Progress Notes
