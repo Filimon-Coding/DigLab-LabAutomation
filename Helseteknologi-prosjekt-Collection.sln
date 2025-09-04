@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DigLab", "DigLab", "{2483E50E-24B8-9FDE-7DE2-0B882393EF47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "backEnd", "backEnd", "{7C897540-5089-F207-559E-8FA6D4F125D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DigLabAPI", "DigLab\backEnd\DigLabAPI\DigLabAPI.csproj", "{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7C897540-5089-F207-559E-8FA6D4F125D3} = {2483E50E-24B8-9FDE-7DE2-0B882393EF47}
+		{A89DA148-CED6-064C-D7E5-9BB5B74EAB8B} = {7C897540-5089-F207-559E-8FA6D4F125D3}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8791FE36-5AAC-451C-9B52-852309327A61}
+	EndGlobalSection
+EndGlobal

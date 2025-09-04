@@ -237,7 +237,7 @@ Perfect 👍 Here’s a clear dev roadmap checklist you can follow step by step.
 
 ✅ Phase 1 – Python Service (PyService)
 
-[ ] Move BarCodePython/ into backEnd/PyService/.
+[R] Move BarCodePython/ into backEnd/PyService/.
 
 [ ] Create main.py with FastAPI entrypoint.
 
