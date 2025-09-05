@@ -1,28 +1,39 @@
-// src/App.tsx
-import { Routes, Route, Link, Navigate } from "react-router-dom";
+import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import FrontPage from "./pages/frontPage";
 import Order from "./pages/order";
+import Scan from "./pages/scan";
 //import History from "./pages/history";
-//import Scann from "./pages/scann";
+          // <Route path="/history" element={<History />} />
 
 export default function App() {
   return (
-    <div>
-      {/* Simple top nav (optional) */}
-      <nav style={{ padding: 12, borderBottom: "1px solid #eee" }}>
-        <Link to="/" style={{ marginRight: 12 }}>Home</Link>
-        <Link to="/order" style={{ marginRight: 12 }}>Order</Link>
-        <Link to="/scann" style={{ marginRight: 12 }}>Scann</Link>
-        <Link to="/history">History</Link>
+    <div className="app-shell">
+      {/* Top nav */}
+      <nav className="app-nav">
+        <div className="brand">
+          <span className="logo-dot" />
+          <span>DigLab</span>
+        </div>
+
+        <div className="nav-links">
+          <NavLink to="/" end className="navlink">Home</NavLink>
+          <NavLink to="/order" className="navlink">Order</NavLink>
+          <NavLink to="/scan" className="navlink">Scan</NavLink>
+          <NavLink to="/history" className="navlink">History</NavLink>
+        </div>
       </nav>
 
-      <Routes>
-        <Route path="/" element={<FrontPage />} />
-        <Route path="/order" element={<Order />} />
+      {/* Pages */}
+      <main className="page">
+        <Routes>
+          <Route path="/" element={<FrontPage />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/scan" element={<Scan />} />
 
-        {/* fallback: anything unknown -> home */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* fallback: anything unknown -> home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </div>
   );
 }

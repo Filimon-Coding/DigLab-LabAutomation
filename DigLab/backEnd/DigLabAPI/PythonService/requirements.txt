@@ -3,3 +3,6 @@ uvicorn
 qrcode[pil]
 reportlab
 pydantic
+pymupdf
+pillow
+numpy

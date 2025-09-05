@@ -11,6 +11,10 @@ from reportlab.lib.units import mm
 
 ALL_DIAGNOSES = ["Dengue", "Malaria", "TBE", "Hantavirus – Puumalavirus (PuV)"]
 
+BOX_BLANK = "[    ]"  # <-- four spaces; your analyzer searches for this
+BOX_X     = "[X]"
+BOX_EMPTY = "[ ]"
+
 def generate_lab_form_pdf(
     out_pdf: Path,
     *,
@@ -22,13 +26,13 @@ def generate_lab_form_pdf(
     qr_png: Path,
     personnummer: str | None = None,
     hospital: str = "DigLab",
-    qr_label: str | None = None,  # if None, will use labnummer
+    qr_label: str | None = None,
 ) -> None:
     """
-    Build a printable lab form PDF.
-    - QR in top-right (PNG provided)
-    - Patient info (incl. optional Personnummer)
-    - Diagnoses with columns: Requested / Positive / Negative
+    Build a printable lab form PDF tailored for robust detection:
+    - Monospace checkboxes in Requested / Positive / Negative columns.
+    - Positive/Negative are always BOX_BLANK so pen marks are needed.
+    - Tight padding around tokens so PyMuPDF search_for() gives precise boxes.
     """
     styles = getSampleStyleSheet()
     doc = SimpleDocTemplate(
@@ -53,7 +57,6 @@ def generate_lab_form_pdf(
     ]))
     elements.append(header)
 
-    # small line indicating what the QR encodes
     qr_text = qr_label or labnummer
     elements.append(Paragraph(f"<font size=9><b>QR encodes:</b> {qr_text}</font>", styles["Normal"]))
     elements.append(Spacer(1, 8))
@@ -77,26 +80,57 @@ def generate_lab_form_pdf(
     elements.append(info_tab)
     elements.append(Spacer(1, 8))
 
+    # ---------- Instructions ----------
+    elements.append(Paragraph(
+        "<font size=9>Mark the results clearly inside the boxes. "
+        "Requested is pre-marked; Positive/Negative must be marked on paper.</font>",
+        styles["Normal"]
+    ))
+    elements.append(Spacer(1, 4))
+
     # ---------- Diagnoses ----------
     elements.append(Paragraph("<b>Requested Analyses & Results</b>", styles["Heading3"]))
-
-    def mark(x: bool) -> str:
-        return "[X]" if x else "[ ]"
 
     sel = set(diagnoses or [])
     diag_rows = [["Diagnosis", "Requested", "Positive", "Negative"]]
     for d in ALL_DIAGNOSES:
-        diag_rows.append([d, mark(d in sel), "[ ]", "[ ]"])
-    # freeform "Other"
-    diag_rows.append(["Other: __________________________", "[ ]", "[ ]", "[ ]"])
+        requested_cell = BOX_X if d in sel else BOX_EMPTY
+        diag_rows.append([d, requested_cell, BOX_BLANK, BOX_BLANK])
 
-    diag_tab = Table(diag_rows, colWidths=[260, 100, 80, 80])
+    # Freeform "Other"
+    diag_rows.append(["Other: __________________________", BOX_BLANK, BOX_BLANK, BOX_BLANK])
+
+    # Wider first column; narrow checkbox columns so tokens stay compact
+    diag_tab = Table(diag_rows, colWidths=[260, 80, 80, 80])
+
     diag_tab.setStyle(TableStyle([
+        # header
         ('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
+        ('TEXTCOLOR',  (0,0), (-1,0), colors.black),
+        ('ALIGN',      (0,0), (-1,0), 'CENTER'),
+        ('FONTNAME',   (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',   (0,0), (-1,0), 11),
+
+        # grid
         ('GRID', (0,0), (-1,-1), 1, colors.black),
-        ('ALIGN', (1,1), (-1,-1), 'CENTER'),
-        ('ALIGN', (0,1), (0,-1), 'LEFT'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+
+        # content alignment
+        ('ALIGN',      (0,1), (0,-1), 'LEFT'),
+        ('VALIGN',     (0,1), (-1,-1), 'MIDDLE'),
+
+        # --- checkbox columns use monospace + tight padding ---
+        ('FONTNAME',   (1,1), (-1,-1), 'Courier'),  # <-- monospace for [    ]
+        ('FONTSIZE',   (1,1), (-1,-1), 12),
+
+        # Tighten padding so search_for() box ≈ visible token width/height
+        ('LEFTPADDING',  (1,1), (-1,-1), 2),
+        ('RIGHTPADDING', (1,1), (-1,-1), 2),
+        ('TOPPADDING',   (1,1), (-1,-1), 2),
+        ('BOTTOMPADDING',(1,1), (-1,-1), 2),
+
+        # Optional: a touch more vertical room for handwriting
+        ('TOPPADDING',   (0,1), (0,-1), 3),
+        ('BOTTOMPADDING',(0,1), (0,-1), 3),
     ]))
     elements.append(diag_tab)
     elements.append(Spacer(1, 8))
@@ -106,7 +140,7 @@ def generate_lab_form_pdf(
     sign_tab = Table(
         [
             ["Collected by:", "___________________ (Signature + ID)"],
-            ["Received by:", "___________________ (Signature + Timestamp)"]
+            ["Received by:",  "___________________ (Signature + Timestamp)"]
         ],
         colWidths=[200, 300]
     )
