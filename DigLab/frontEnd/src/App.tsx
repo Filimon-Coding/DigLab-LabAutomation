@@ -1,6 +1,6 @@
 import { Routes, Route, NavLink, Navigate } from "react-router-dom";
 import FrontPage from "./pages/frontPage";
-import Order from "./pages/order";
+import Order from "./pages/orderForm";
 import Scan from "./pages/scan";
 //import History from "./pages/history";
           // <Route path="/history" element={<History />} />
