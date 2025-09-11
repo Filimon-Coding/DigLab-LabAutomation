@@ -71,6 +71,8 @@ public class ScanController : ControllerBase
         var bytes = ms.ToArray();
 
         // ---- Call Python analyzer to obtain JSON (incl. labnummer) ----
+
+        // ---- Call Python analyzer to obtain JSON (incl. labnummer) ----
         string analyzerJson;
         try
         {
