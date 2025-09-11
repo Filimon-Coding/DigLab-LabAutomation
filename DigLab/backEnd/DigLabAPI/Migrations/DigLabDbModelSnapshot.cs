@@ -30,6 +30,9 @@ namespace DigLabAPI.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AnyOverridden")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime(6)");
 
@@ -54,6 +57,15 @@ namespace DigLabAPI.Migrations
                         .HasMaxLength(11)
                         .HasColumnType("varchar(11)");
 
+                    b.Property<string>("RequisitionPdfPath")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ResultsPdfPath")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("ResultsSaved")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<TimeOnly>("Time")
                         .HasColumnType("time(6)");
 
@@ -63,6 +75,174 @@ namespace DigLabAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Orders");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3329),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Dengue\"]",
+                            LabNumber = "LAB-20250909-AAA11111",
+                            Name = "Ola Nordmann",
+                            Personnummer = "01010112345",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(9, 15, 0)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3646),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Malaria\"]",
+                            LabNumber = "LAB-20250909-BBB22222",
+                            Name = "Kari Nordmann",
+                            Personnummer = "02020223456",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(9, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3648),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"TBE\",\"Dengue\"]",
+                            LabNumber = "LAB-20250909-CCC33333",
+                            Name = "Per Hansen",
+                            Personnummer = "03030334567",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(10, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3650),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]",
+                            LabNumber = "LAB-20250909-DDD44444",
+                            Name = "Anne Larsen",
+                            Personnummer = "04040445678",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(10, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3653),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Dengue\"]",
+                            LabNumber = "LAB-20250909-EEE55555",
+                            Name = "Marius Bakke",
+                            Personnummer = "05050556789",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(11, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3655),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Malaria\",\"TBE\"]",
+                            LabNumber = "LAB-20250909-FFF66666",
+                            Name = "Ingrid Lie",
+                            Personnummer = "06060667890",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(11, 15, 0)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3657),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"TBE\"]",
+                            LabNumber = "LAB-20250909-GGG77777",
+                            Name = "Jonas Moen",
+                            Personnummer = "07070778901",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(11, 45, 0)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3659),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Dengue\",\"Malaria\"]",
+                            LabNumber = "LAB-20250909-HHH88888",
+                            Name = "Camilla Johansen",
+                            Personnummer = "08080889012",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(12, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3734),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]",
+                            LabNumber = "LAB-20250909-III99999",
+                            Name = "Andreas Solheim",
+                            Personnummer = "09090990123",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(12, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AnyOverridden = false,
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 775, DateTimeKind.Utc).AddTicks(3736),
+                            Date = new DateOnly(2025, 9, 9),
+                            DiagnosesJson = "[\"Malaria\"]",
+                            LabNumber = "LAB-20250909-JJJ00000",
+                            Name = "Sofie Berg",
+                            Personnummer = "10101001234",
+                            ResultsSaved = false,
+                            Time = new TimeOnly(13, 0, 0)
+                        });
+                });
+
+            modelBuilder.Entity("DigLabAPI.Models.OrderResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Auto")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Diagnosis")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Final")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Overridden")
+                        .HasColumnType("tinyint(1)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderResults");
                 });
 
             modelBuilder.Entity("DigLabAPI.Models.Person", b =>
@@ -131,6 +311,154 @@ namespace DigLabAPI.Migrations
                         .IsUnique();
 
                     b.ToTable("Persons");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AddressLine1 = "Storgata 1",
+                            City = "Oslo",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(6903),
+                            Email = "ola@example.com",
+                            FirstName = "Ola",
+                            LastName = "Nordmann",
+                            Personnummer = "01010112345",
+                            Phone = "90000001",
+                            PostalCode = "0001"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AddressLine1 = "Parkveien 22",
+                            City = "Bergen",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7484),
+                            Email = "kari@example.com",
+                            FirstName = "Kari",
+                            LastName = "Nordmann",
+                            Personnummer = "02020223456",
+                            Phone = "90000002",
+                            PostalCode = "5003"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AddressLine1 = "Markveien 12",
+                            City = "Trondheim",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7486),
+                            Email = "per@example.com",
+                            FirstName = "Per",
+                            LastName = "Hansen",
+                            Personnummer = "03030334567",
+                            Phone = "90000003",
+                            PostalCode = "7010"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AddressLine1 = "Solbergveien 7",
+                            City = "Tromsø",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7488),
+                            Email = "anne@example.com",
+                            FirstName = "Anne",
+                            LastName = "Larsen",
+                            Personnummer = "04040445678",
+                            Phone = "90000004",
+                            PostalCode = "9008"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AddressLine1 = "Skogveien 14",
+                            City = "Gjøvik",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7589),
+                            Email = "marius@example.com",
+                            FirstName = "Marius",
+                            LastName = "Bakke",
+                            Personnummer = "05050556789",
+                            Phone = "90000005",
+                            PostalCode = "2815"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AddressLine1 = "Havnegata 3",
+                            City = "Fredrikstad",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7592),
+                            Email = "ingrid@example.com",
+                            FirstName = "Ingrid",
+                            LastName = "Lie",
+                            Personnummer = "06060667890",
+                            Phone = "90000006",
+                            PostalCode = "1606"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AddressLine1 = "Kirkeveien 15",
+                            City = "Lillestrøm",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7593),
+                            Email = "jonas@example.com",
+                            FirstName = "Jonas",
+                            LastName = "Moen",
+                            Personnummer = "07070778901",
+                            Phone = "90000007",
+                            PostalCode = "2004"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AddressLine1 = "Elveveien 2",
+                            City = "Stavanger",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7595),
+                            Email = "camilla@example.com",
+                            FirstName = "Camilla",
+                            LastName = "Johansen",
+                            Personnummer = "08080889012",
+                            Phone = "90000008",
+                            PostalCode = "4005"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AddressLine1 = "Fjordgata 9",
+                            City = "Molde",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7597),
+                            Email = "andreas@example.com",
+                            FirstName = "Andreas",
+                            LastName = "Solheim",
+                            Personnummer = "09090990123",
+                            Phone = "90000009",
+                            PostalCode = "6411"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AddressLine1 = "Torget 8",
+                            City = "Hamar",
+                            CreatedAtUtc = new DateTime(2025, 9, 11, 16, 13, 28, 769, DateTimeKind.Utc).AddTicks(7598),
+                            Email = "sofie@example.com",
+                            FirstName = "Sofie",
+                            LastName = "Berg",
+                            Personnummer = "10101001234",
+                            Phone = "90000010",
+                            PostalCode = "2317"
+                        });
+                });
+
+            modelBuilder.Entity("DigLabAPI.Models.OrderResult", b =>
+                {
+                    b.HasOne("DigLabAPI.Models.Order", "Order")
+                        .WithMany("Results")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("DigLabAPI.Models.Order", b =>
+                {
+                    b.Navigation("Results");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,8 +1,13 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using DigLabAPI.Data;
+using DigLabAPI.Options;             // <-- make sure this using is present
+using Microsoft.Extensions.Options;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);   // <-- create builder first
+
+// Bind StorageOptions from appsettings
+builder.Services.Configure<StorageOptions>(builder.Configuration.GetSection("Storage"));  // <-- now it's valid
 
 // ---- Konfig ----
 var frontendOrigin = builder.Configuration["FrontendOrigin"] ?? "http://localhost:5173";
@@ -24,18 +29,20 @@ builder.Services.AddDbContext<DigLabDb>(opt =>
 });
 
 builder.Services.AddControllers()
-    .AddJsonOptions(o =>
-    {
-        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // DateOnly/TimeOnly støttes i .NET 8
-    });
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// ---- Pipeline ----
+// (optional) ensure storage dirs exist at boot
+{
+    var storage = app.Services.GetRequiredService<IOptions<StorageOptions>>().Value;
+    Directory.CreateDirectory(Path.GetFullPath(storage.FormsDir,        AppContext.BaseDirectory));
+    Directory.CreateDirectory(Path.GetFullPath(storage.FormResultsDir,  AppContext.BaseDirectory));
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -47,7 +54,6 @@ app.MapControllers();
 app.MapGet("/", () => Results.Ok("DigLab API is running"));
 app.MapGet("/healthz", () => Results.Ok(new { ok = true, time = DateTime.UtcNow }));
 
-// Kjør EF migrasjoner ved oppstart (MySQL best-practice)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<DigLabDb>();

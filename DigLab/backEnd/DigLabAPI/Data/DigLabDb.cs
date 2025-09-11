@@ -9,6 +9,7 @@ public class DigLabDb : DbContext
 
     public DbSet<Person> Persons => Set<Person>();
     public DbSet<Order>  Orders  => Set<Order>();
+    public DbSet<OrderResult> OrderResults => Set<OrderResult>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -29,6 +30,7 @@ public class DigLabDb : DbContext
             e.Property(x => x.Phone).HasMaxLength(20);
         });
 
+        // (your existing Person seeds kept)
         b.Entity<Person>().HasData(
             new Person { Id = 1,  Personnummer = "01010112345", FirstName = "Ola",     LastName = "Nordmann",  AddressLine1 = "Storgata 1",   PostalCode = "0001", City = "Oslo",       Email = "ola@example.com",     Phone = "90000001", CreatedAtUtc = DateTime.UtcNow },
             new Person { Id = 2,  Personnummer = "02020223456", FirstName = "Kari",    LastName = "Nordmann",  AddressLine1 = "Parkveien 22", PostalCode = "5003", City = "Bergen",     Email = "kari@example.com",    Phone = "90000002", CreatedAtUtc = DateTime.UtcNow },
@@ -42,7 +44,7 @@ public class DigLabDb : DbContext
             new Person { Id = 10, Personnummer = "10101001234", FirstName = "Sofie",   LastName = "Berg",      AddressLine1 = "Torget 8",     PostalCode = "2317", City = "Hamar",      Email = "sofie@example.com",   Phone = "90000010", CreatedAtUtc = DateTime.UtcNow }
         );
 
-        // --- Order config + seed ---
+        // --- Order / OrderResult config (+ a bit of seed you already had) ---
         b.Entity<Order>(e =>
         {
             e.Property(x => x.LabNumber).HasMaxLength(32);
@@ -50,6 +52,13 @@ public class DigLabDb : DbContext
             e.Property(x => x.Personnummer).HasMaxLength(11);
         });
 
+        b.Entity<Order>()
+            .HasMany(o => o.Results)
+            .WithOne(r => r.Order)
+            .HasForeignKey(r => r.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // existing Order seed preserved
         b.Entity<Order>().HasData(
             new Order { Id = 1,  LabNumber = "LAB-20250909-AAA11111", Name = "Ola Nordmann",     Personnummer = "01010112345", Date = new DateOnly(2025,09,09), Time = new TimeOnly(9,15),  DiagnosesJson = "[\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
             new Order { Id = 2,  LabNumber = "LAB-20250909-BBB22222", Name = "Kari Nordmann",    Personnummer = "02020223456", Date = new DateOnly(2025,09,09), Time = new TimeOnly(9,30),  DiagnosesJson = "[\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow },
