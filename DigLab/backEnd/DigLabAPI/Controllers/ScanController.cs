@@ -1,76 +1,103 @@
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace DigLabAPI.Controllers;
-
-[ApiController]
-[Route("scan")]
-public class ScanController : ControllerBase
+namespace DigLabAPI.Controllers
 {
-    private readonly IHttpClientFactory _http;
-    private readonly ILogger<ScanController> _logger;
-
-    public ScanController(IHttpClientFactory http, ILogger<ScanController> logger)
+    // Prefix: /api/scan
+    [ApiController]
+    [Route("api/[controller]")]
+    public class ScanController : ControllerBase
     {
-        _http = http;
-        _logger = logger;
+        private readonly IHttpClientFactory _http;
+        private readonly ILogger<ScanController> _logger;
+
+        public ScanController(IHttpClientFactory http, ILogger<ScanController> logger)
+        {
+            _http = http;
+            _logger = logger;
+        }
+
+        /// <summary>
+        /// Last opp PDF/bilde for analyse. Sendes videre til Python-tjenesten.
+        /// </summary>
+        [HttpPost("analyze")]
+        [Consumes("multipart/form-data")]
+        [Produces("application/json")]
+        [RequestSizeLimit(20_000_000)] // 20 MB
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status415UnsupportedMediaType)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> Analyze([FromForm] AnalyzeRequest req, CancellationToken ct)
+        {
+            // 1) Valider input
+            if (req.File is null || req.File.Length == 0)
+                return BadRequest("No file uploaded (field name must be 'file').");
+
+            var contentType = string.IsNullOrWhiteSpace(req.File.ContentType)
+                ? "application/octet-stream"
+                : req.File.ContentType;
+
+            // Kun PDF eller bilde
+            var isPdf = contentType.StartsWith("application/pdf", StringComparison.OrdinalIgnoreCase);
+            var isImg = contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase);
+            if (!isPdf && !isImg)
+                return StatusCode(StatusCodes.Status415UnsupportedMediaType,
+                    $"Unsupported content type: {contentType}");
+
+            // 2) Bygg multipart for Python
+            using var form = new MultipartFormDataContent();
+
+            await using var stream = req.File.OpenReadStream();
+            using var filePart = new StreamContent(stream);
+            filePart.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+
+            // NB: Python-tjenesten forventer feltet "file"
+            form.Add(filePart, "file", req.File.FileName ?? "upload");
+
+            // Ekstra metadata kan sendes som enkle form-felt
+            if (!string.IsNullOrWhiteSpace(req.LabNumber))
+                form.Add(new StringContent(req.LabNumber), "labNumber");
+
+            // 3) Kall Python
+            try
+            {
+                var client = _http.CreateClient("py"); // BaseAddress settes i Program.cs
+                using var resp = await client.PostAsync("/analyze", form, ct);
+                var body = await resp.Content.ReadAsStringAsync(ct);
+
+                if (!resp.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Py /analyze failed: {Status} {Body}", resp.StatusCode, body);
+                    return StatusCode((int)resp.StatusCode, body);
+                }
+
+                // 4) Returner JSON som Python gir (pass-through)
+                return Content(body, "application/json");
+            }
+            catch (OperationCanceledException)
+            {
+                // 499 = Client Closed Request (uoffisiell, men ofte brukt)
+                return Problem(statusCode: StatusCodes.Status499ClientClosedRequest, detail: "Client cancelled");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Analyze failed");
+                return Problem(statusCode: 500, detail: "Analyze failed");
+            }
+        }
     }
 
     /// <summary>
-    /// POST /scan/analyze
-    /// Accepts: multipart/form-data with field "file" (pdf/image).
-    /// Forwards the upload to the Python service and returns its JSON.
+    /// Form-data for /api/scan/analyze. DTO-en merkes [FromForm] i action-parameteren.
     /// </summary>
-    [HttpPost("analyze")]
-    [RequestSizeLimit(20_000_000)] // 20MB (adjust as needed)
-    public async Task<IActionResult> Analyze([FromForm] IFormFile file, CancellationToken ct)
+    public sealed class AnalyzeRequest
     {
-        if (file == null || file.Length == 0)
-            return BadRequest("No file uploaded.");
+        /// <summary>Opplastet fil (PDF eller bilde). Felt-navn må være "file".</summary>
+        public IFormFile File { get; set; } = default!;
 
-        // Basic content-type check (allow pdf & images)
-        var contentType = string.IsNullOrWhiteSpace(file.ContentType)
-            ? "application/octet-stream"
-            : file.ContentType;
-
-        if (!(contentType.StartsWith("application/pdf", StringComparison.OrdinalIgnoreCase) ||
-              contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase)))
-        {
-            return StatusCode(StatusCodes.Status415UnsupportedMediaType,
-                $"Unsupported content type: {contentType}");
-        }
-
-        // Build multipart payload to forward to Python
-        using var form = new MultipartFormDataContent();
-        await using var stream = file.OpenReadStream();
-        using var streamContent = new StreamContent(stream);
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-        form.Add(streamContent, "file", file.FileName); // field name expected by Py service: "file"
-
-        try
-        {
-            var client = _http.CreateClient("py");
-            // Python endpoint you’ll implement (e.g. FastAPI): POST /analyze
-            using var resp = await client.PostAsync("/analyze", form, ct);
-            var body = await resp.Content.ReadAsStringAsync(ct);
-
-            if (!resp.IsSuccessStatusCode)
-            {
-                _logger.LogWarning("Py analyze failed: {Status} {Body}", resp.StatusCode, body);
-                return StatusCode((int)resp.StatusCode, body);
-            }
-
-            // Pass the JSON straight through
-            return Content(body, "application/json");
-        }
-        catch (OperationCanceledException)
-        {
-            return Problem(statusCode: StatusCodes.Status499ClientClosedRequest, detail: "Client cancelled");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Analyze failed");
-            return Problem(statusCode: 500, detail: "Analyze failed");
-        }
+        /// <summary>Valgfritt: labnummer knyttet til opplastingen.</summary>
+        public string? LabNumber { get; set; }
     }
 }
