@@ -30,6 +30,11 @@ FORMS_DIR = BASE_DIR / "forms"
 BARCODES_DIR.mkdir(parents=True, exist_ok=True)
 FORMS_DIR.mkdir(parents=True, exist_ok=True)
 
+# storage folders (python side)
+RESULTS_DIR = BASE_DIR / "formResults"
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
+
 # -----------------------------------------------------------------------------
 # Helpers
 # -----------------------------------------------------------------------------
@@ -382,5 +387,62 @@ async def analyze(file: UploadFile = File(...)):
         "found": found,         # includes requested diagnoses list
         "marks": marks          # unrequested rows are "none"
     }
+
+
+
+
+from fastapi.responses import Response
+from pydantic import BaseModel
+import fitz  # PyMuPDF
+
+class FinalizeRow(BaseModel):
+    diagnosis: str
+    final: str
+    auto: str | None = None
+
+class FinalizePayload(BaseModel):
+    labnummer: str
+    results: list[FinalizeRow]
+
+@app.post("/finalize-form")
+def finalize_form(payload: FinalizePayload):
+    """
+    Load the requisition PDF for `labnummer` from FORMS_DIR, stamp FINAL results,
+    return the updated PDF as bytes (and also save a copy on the Python side).
+    """
+    # Your /generate-form saved as "<labnummer>.pdf"
+    src = FORMS_DIR / f"{payload.labnummer}.pdf"
+    if not src.exists():
+        # also try a couple of fallback names if you ever change naming
+        alt = FORMS_DIR / f"DigLab-{payload.labnummer}.pdf"
+        if alt.exists():
+            src = alt
+        else:
+            raise HTTPException(status_code=404, detail=f"Requisition PDF not found for {payload.labnummer}")
+
+    doc = fitz.open(src)
+    page = doc[0]
+
+    # Simple stamp layout
+    x_left = 54
+    y = 130
+    line = 18
+
+    page.insert_text((x_left, y), "FINAL RESULTS", fontsize=14, fontname="helv", fill=(0, 0, 0))
+    y += line + 6
+
+    # Sort for stable order
+    for r in sorted(payload.results, key=lambda r: r.diagnosis.lower()):
+        txt = f"{r.diagnosis}: {r.final}"
+        page.insert_text((x_left, y), txt, fontsize=12, fontname="helv", fill=(0, 0, 0))
+        y += line
+
+    out_bytes = doc.tobytes()
+    doc.close()
+
+    # Optional: also store a copy on the Python side (not required for .NET)
+    (RESULTS_DIR / f"DigLab-{payload.labnummer}-results.pdf").write_bytes(out_bytes)
+
+    return Response(content=out_bytes, media_type="application/pdf")
 
 
