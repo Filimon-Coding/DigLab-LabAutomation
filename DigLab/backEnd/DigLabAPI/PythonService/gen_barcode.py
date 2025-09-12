@@ -44,6 +44,7 @@ def make_code128_svg_png(data: str, basepath: Path) -> bool:
             Code128(data, writer=SVGWriter()).write(fsvg)
 
         # Try PNG (nice for preview / MS Word etc.)
+        ##
         try:
             png_path = basepath.with_suffix(".png")
             with open(png_path, "wb") as fpng:
