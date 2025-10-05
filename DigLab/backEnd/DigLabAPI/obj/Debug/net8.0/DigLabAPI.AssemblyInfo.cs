@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DigLabAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7b281336a2cf802948aea4d55f4398a85a469e1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d87af15fc8ef6620a39cba1b17eced76030b09ee")]
 [assembly: System.Reflection.AssemblyProductAttribute("DigLabAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DigLabAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
