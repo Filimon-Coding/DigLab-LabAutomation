@@ -1,6 +1,3 @@
-Here’s a clean **README.md** draft you can drop in your project root (DigLab/).  
-It documents exactly what you did and the setup steps:
-
 ```markdown
 # DigLab – Setup Guide
 
@@ -347,8 +344,5 @@ Show “Download PDF” button OR auto-download.
 
 
 ---
-
-Would you like me to also prepare a minimal JSON contract (the exact request/response format) for /generate-form and /orders, so you know what fields frontend → backend → Python should exchange?
-
 
 
