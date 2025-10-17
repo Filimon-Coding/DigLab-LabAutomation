@@ -8,7 +8,7 @@ This project is split into two parts:
 
 ---
 
-## 📦 Backend (DigLabAPI)
+##  Backend (DigLabAPI)
 
 1. Navigate to the backend folder and scaffold the API:
 
@@ -26,7 +26,7 @@ This project is split into two parts:
 
 ---
 
-## 💻 Frontend (React + TypeScript)
+##  Frontend (React + TypeScript)
 
 1. Navigate to the frontend folder and scaffold with Vite:
 
@@ -58,7 +58,7 @@ This project is split into two parts:
 
 ---
 
-## ⚡ Notes
+##  Notes
 
 - Later, if you want built-in routing right away, you could scaffold with  
   **React Router v7 + TypeScript**.  
@@ -66,9 +66,9 @@ This project is split into two parts:
 ```
 ---
 
-# 📝 DigLab – Progress Notes
+#  DigLab – Progress Notes
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 DigLab/
@@ -80,7 +80,7 @@ DigLab/
 
 ---
 
-## ✅ Backend (ASP.NET Core 8)
+##  Backend (ASP.NET Core 8)
 
 * Created API project:
 
@@ -101,7 +101,7 @@ DigLab/
 
 ---
 
-## ✅ Frontend (React + Vite + TypeScript)
+##  Frontend (React + Vite + TypeScript)
 
 * Created frontend with Vite:
 
@@ -125,12 +125,12 @@ DigLab/
 * Runs at: `http://localhost:5173`
 * Initial page: **Vite + React welcome page**
 
-⚠️ Note to self:
+ Note to self:
 Don’t use `pnpm dev run` → the correct command is **`pnpm dev`**
 
 ---
 
-## 🔗 Next Steps (planned)
+##  Next Steps (planned)
 
 1. Add **CORS policy** in backend so frontend can fetch data.
 2. Add a simple `/` endpoint in backend for health check.
@@ -145,7 +145,7 @@ Done with scaffolding → real development.
 
 
 
-1️⃣ Start with Python service (PyService)
+1️1.  Start with Python service (PyService)
 
 Reason: It’s the “worker” that actually produces the QR + PDF.
 
@@ -156,12 +156,12 @@ You already have the structure, just finish polishing the /generate-form endpoin
 Test it in Swagger UI → make sure you can POST patient info + diagnoses → get back a valid PDF.
 
 
-👉 Once this step works, you have a working engine.
+--> Once this step works, you have a working engine.
 
 
 ---
 
-2️⃣ Then connect it to .NET API (DigLabAPI)
+2️2. Then connect it to .NET API (DigLabAPI)
 
 Purpose: .NET will be the “orchestrator” between frontend and Python service.
 
@@ -177,12 +177,12 @@ Returns the PDF file to frontend.
 Test with Postman/Swagger: POST to /orders → .NET forwards → Python → returns PDF.
 
 
-👉 Now your backend pipeline is complete.
+-->  Now your backend pipeline is complete.
 
 
 ---
 
-3️⃣ Finally build the React frontend
+3️3. Finally build the React frontend
 
 Build the registration form (Name, Date, Time, Diagnoses checkboxes).
 
@@ -193,13 +193,13 @@ API responds with PDF → show “Download PDF” button or auto-open.
 Test end-to-end: Fill form → PDF with QR + marked diagnoses downloads.
 
 
-👉 Now you have a full working loop:
+--> Now you have a full working loop:
 React → .NET → Python → PDF → back to browser.
 
 
 ---
 
-4️⃣ (Later)
+4️4 (Later)
 
 Add database in .NET to store orders.
 
@@ -213,7 +213,7 @@ Polish styling (React Router, Tailwind, shadcn/ui).
 
 ---
 
-✅ Recommended order:
+*  Recommended order:
 (1) PyService → (2) .NET API → (3) Frontend
 
 This way, you always have something testable before adding the next layer.
@@ -221,16 +221,15 @@ This way, you always have something testable before adding the next layer.
 
 ---
 
-👉 Do you want me to make you a step-by-step checklist (like a dev roadmap) so you can tick off each milestone as you build?
 
 
 
-Perfect 👍 Here’s a clear dev roadmap checklist you can follow step by step. You can copy this into your Docs.MD so you tick things off as you go.
+
 
 
 ---
 
-🛠️ DigLab Development Roadmap
+ DigLab Development Roadmap
 
 ✅ Phase 1 – Python Service (PyService)
 
@@ -300,7 +299,7 @@ Show “Download PDF” button OR auto-download.
 
 ---
 
-🔄 Phase 4 – Integration Polish
+ Phase 4 – Integration Polish
 
 [ ] Add unique Labnummer generation in .NET (instead of frontend).
 
@@ -316,7 +315,7 @@ Show “Download PDF” button OR auto-download.
 
 ---
 
-🔐 Phase 5 – (Future Enhancements)
+ Phase 5 – (Future Enhancements)
 
 [ ] Authentication (nurse login).
 
@@ -339,9 +338,6 @@ Show “Download PDF” button OR auto-download.
 
 
 3. Only move to next phase when current phase is ✅ working.
-
-
-
 
 ---
 
