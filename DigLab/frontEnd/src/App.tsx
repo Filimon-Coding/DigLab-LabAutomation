@@ -6,6 +6,9 @@ import Scan from "./pages/scan";
 import History from "./pages/history";
 import Login from "./pages/Admin/login";
 import "./index.css";
+import UsersAdmin from "./pages/Admin/users";
+import ChangePassword from "./pages/Admin/changePassword";
+
 
 /* ---------- små hjelpere ---------- */
 function getUser() {
@@ -62,6 +65,9 @@ function TopNav({
           {authed && <NavLink to="/order">Order</NavLink>}
           {authed && <NavLink to="/scan">Scan</NavLink>}
           {authed && <NavLink to="/history">History</NavLink>}
+          {authed && <NavLink to="/account/password">Password</NavLink>}
+         {authed && localStorage.getItem("role")==="admin" && <NavLink to="/admin/users">Users</NavLink>}
+
           {!authed ? (
             <NavLink to="/login">Login</NavLink>
           ) : (
@@ -109,6 +115,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<FrontPage />} />
           <Route path="/login" element={<Login />} />
+
+          <Route path="/admin/users" element={<RequireAuth><UsersAdmin/></RequireAuth>} />
+          <Route path="/account/password" element={<RequireAuth><ChangePassword/></RequireAuth>} />
+
+
+
 
           {/* beskyttede ruter */}
           <Route
