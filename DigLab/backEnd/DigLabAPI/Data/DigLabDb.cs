@@ -88,7 +88,7 @@ public class DigLabDb : DbContext
             Id = 1,
             // Login = WorkerID
             Username   = "admin",
-            WorkerId   = "admin",
+            WorkerId   = "1234",
             FirstName  = "System",
             LastName   = "Administrator",
             HprNumber  = "",                    // tom er ok hvis ikke relevant for admin

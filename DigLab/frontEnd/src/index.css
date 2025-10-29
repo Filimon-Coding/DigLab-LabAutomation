@@ -109,3 +109,31 @@ button.quiet{
 .pill{ display:inline-block; padding:4px 10px; border-radius:999px; font-size:15px; color:black;
   background:color-mix(in oklab,var(--accent) 10%, white 90%); border:1px solid var(--border); }
 .good{ color:var(--success); } .bad{ color:var(--danger); }
+
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  border-color: var(--border);
+  background: color-mix(in oklab, var(--primary) 8%, var(--bg1) 92%);
+}
+.menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.menu-item:hover {
+  background: color-mix(in oklab, var(--primary) 6%, var(--bg1) 94%);
+}
+

@@ -1,22 +1,28 @@
-import { useEffect, useState, type JSX } from "react";
-import { NavLink, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState, type JSX } from "react";
+import { NavLink, Route, Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
 import FrontPage from "./pages/frontPage";
 import OrderForm from "./pages/orderForm";
 import Scan from "./pages/scan";
 import History from "./pages/history";
 import Login from "./pages/Admin/login";
-import "./index.css";
 import UsersAdmin from "./pages/Admin/users";
 import ChangePassword from "./pages/Admin/changePassword";
+import "./index.css";
 
-
-/* ---------- små hjelpere ---------- */
-function getUser() {
-  return localStorage.getItem("user") ?? "";
-}
+/* ---------- helpers ---------- */
 function hasToken() {
   return !!localStorage.getItem("token");
 }
+function getFirstName() {
+  return localStorage.getItem("firstName") ?? "";
+}
+function getWorkerId() {
+  return localStorage.getItem("workerId") ?? "";
+}
+function cap(s: string){ return s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : ""; }
+
+function safe(s?: string|null){ return (s ?? "").trim(); }
+function first3(n: string){ return n ? (n[0].toUpperCase() + n.slice(1).toLowerCase()).slice(0,3) : ""; }
 
 /* ---------- logo ---------- */
 function Logo() {
@@ -37,20 +43,28 @@ function Logo() {
   );
 }
 
-/* ---------- guard for beskyttede sider ---------- */
+/* ---------- auth guard ---------- */
 function RequireAuth({ children }: { children: JSX.Element }) {
   return hasToken() ? children : <Navigate to="/login" replace />;
 }
 
-/* ---------- top-nav ---------- */
-function TopNav({
-  authed,
-  onLogout,
-}: {
-  authed: boolean;
-  onLogout: () => void;
-}) {
-  const user = getUser();
+/* ---------- top navigation ---------- */
+function TopNav({ authed, onLogout }: { authed: boolean; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const nav = useNavigate();
+
+const firstName = safe(localStorage.getItem("firstName"));
+const workerId  = safe(localStorage.getItem("workerId")) || safe(localStorage.getItem("user"));
+const badge = firstName ? `${first3(firstName)}${workerId}` : workerId || "Account";
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, []);
+
   return (
     <nav className="nav">
       <div className="nav-inner container">
@@ -59,22 +73,64 @@ function TopNav({
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
-          <NavLink to="/" end>
-            Home
-          </NavLink>
+          <NavLink to="/" end>Home</NavLink>
           {authed && <NavLink to="/order">Order</NavLink>}
           {authed && <NavLink to="/scan">Scan</NavLink>}
           {authed && <NavLink to="/history">History</NavLink>}
-          {authed && <NavLink to="/account/password">Password</NavLink>}
-         {authed && localStorage.getItem("role")==="admin" && <NavLink to="/admin/users">Users</NavLink>}
+          {authed && localStorage.getItem("role") === "admin" && (
+            <NavLink to="/admin/users">Users</NavLink>
+          )}
 
           {!authed ? (
             <NavLink to="/login">Login</NavLink>
           ) : (
-            <>
-              {user && <span style={{ opacity: 0.8 }}>({user})</span>}
-              <button onClick={onLogout}>Logout</button>
-            </>
+            <div ref={ref} style={{ position: "relative" }}>
+          <button className="btn-ghost" onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open}>
+            {badge}
+          </button>
+
+
+              {open && (
+                <div
+                  role="menu"
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    top: "110%",
+                    background: "var(--bg1)",
+                    border: "1px solid var(--border)",
+                    borderRadius: 8,
+                    boxShadow: "0 8px 20px rgba(0,0,0,.25)",
+                    minWidth: 160,
+                    zIndex: 10,
+                    padding: 6,
+                  }}
+                >
+                  <button
+                    className="menu-item"
+                    onClick={() => {
+                      setOpen(false);
+                      nav("/account/profile");
+                    }}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    className="menu-item"
+                    onClick={() => {
+                      setOpen(false);
+                      nav("/account/password");
+                    }}
+                  >
+                    Password
+                  </button>
+                  <hr style={{ opacity: 0.3, margin: "6px 0" }} />
+                  <button className="menu-item" onClick={onLogout}>
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -82,25 +138,26 @@ function TopNav({
   );
 }
 
-/* ---------- hoved-app ---------- */
+/* ---------- main app ---------- */
 export default function App() {
-  const [, setTick] = useState(0); // bare for å trigge re-render ved login/logout
+  const [, setTick] = useState(0);
   const loc = useLocation();
 
   function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("role");
+    localStorage.removeItem("firstName");
+    localStorage.removeItem("workerId");
     setTick((x) => x + 1);
   }
 
-  // Re-render når token endres fra andre tabs/vinduer
   useEffect(() => {
     const h = () => setTick((x) => x + 1);
     window.addEventListener("storage", h);
     return () => window.removeEventListener("storage", h);
   }, []);
 
-  // Re-render når route endres (nyttig etter login som navigerer tilbake)
   useEffect(() => {
     setTick((x) => x + 1);
   }, [loc.pathname]);
@@ -116,37 +173,16 @@ export default function App() {
           <Route path="/" element={<FrontPage />} />
           <Route path="/login" element={<Login />} />
 
-          <Route path="/admin/users" element={<RequireAuth><UsersAdmin/></RequireAuth>} />
-          <Route path="/account/password" element={<RequireAuth><ChangePassword/></RequireAuth>} />
+          {/* account + admin */}
+          <Route path="/account/password" element={<RequireAuth><ChangePassword /></RequireAuth>} />
+          <Route path="/account/profile" element={<RequireAuth><div className="card">Profile page (coming soon)</div></RequireAuth>} />
+          <Route path="/admin/users" element={<RequireAuth><UsersAdmin /></RequireAuth>} />
 
+          {/* protected */}
+          <Route path="/order" element={<RequireAuth><OrderForm /></RequireAuth>} />
+          <Route path="/scan" element={<RequireAuth><Scan /></RequireAuth>} />
+          <Route path="/history" element={<RequireAuth><History /></RequireAuth>} />
 
-
-
-          {/* beskyttede ruter */}
-          <Route
-            path="/order"
-            element={
-              <RequireAuth>
-                <OrderForm />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/scan"
-            element={
-              <RequireAuth>
-                <Scan />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/history"
-            element={
-              <RequireAuth>
-                <History />
-              </RequireAuth>
-            }
-          />
           {/* fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

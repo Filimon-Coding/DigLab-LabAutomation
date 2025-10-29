@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using DigLabAPI.Data;
 using DigLabAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,9 +19,13 @@ public class AuthController : ControllerBase
     public AuthController(DigLabDb db, IConfiguration cfg){ _db = db; _cfg = cfg; }
 
     public record LoginRequest(string Username, string Password);
-    public record LoginResponse(string token, string username, string role, DateTime expiresUtc);
+   
+    public record LoginResponse(
+    string token, string username, string role, DateTime expiresUtc,
+    string firstName, string workerId );
 
     [HttpPost("login")]
+    [AllowAnonymous]
     [Produces("application/json")]
     public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginRequest req)
     {
@@ -29,6 +34,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Invalid credentials");
 
         var expires = DateTime.UtcNow.AddMinutes(int.Parse(_cfg["Jwt:ExpiresMinutes"] ?? "120"));
+
         var claims = new[]
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Username),
@@ -38,6 +44,7 @@ public class AuthController : ControllerBase
 
         var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_cfg["Jwt:Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
         var token = new JwtSecurityToken(
             issuer: _cfg["Jwt:Issuer"],
             audience: _cfg["Jwt:Audience"],
@@ -45,8 +52,16 @@ public class AuthController : ControllerBase
             expires: expires,
             signingCredentials: creds
         );
+        
 
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);
-        return Ok(new LoginResponse(jwt, user.Username, user.Role, expires));
+                return Ok(new LoginResponse(
+            jwt,
+            user.Username,
+            user.Role,
+            expires,
+            user.FirstName,
+            user.WorkerId
+        ));
     }
 }
