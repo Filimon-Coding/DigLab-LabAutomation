@@ -1,5 +1,6 @@
 using DigLabAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using BCrypt.Net; 
 
 namespace DigLabAPI.Data;
 
@@ -10,6 +11,10 @@ public class DigLabDb : DbContext
     public DbSet<Person> Persons => Set<Person>();
     public DbSet<Order>  Orders  => Set<Order>();
     public DbSet<OrderResult> OrderResults => Set<OrderResult>();
+
+    public DbSet<User> Users => Set<User>(); 
+
+    
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -60,16 +65,32 @@ public class DigLabDb : DbContext
 
         // existing Order seed preserved
         b.Entity<Order>().HasData(
-            new Order { Id = 1,  LabNumber = "LAB-20250909-AAA11111", Name = "Ola Nordmann",     Personnummer = "01010112345", Date = new DateOnly(2025,09,09), Time = new TimeOnly(9,15),  DiagnosesJson = "[\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 2,  LabNumber = "LAB-20250909-BBB22222", Name = "Kari Nordmann",    Personnummer = "02020223456", Date = new DateOnly(2025,09,09), Time = new TimeOnly(9,30),  DiagnosesJson = "[\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 3,  LabNumber = "LAB-20250909-CCC33333", Name = "Per Hansen",       Personnummer = "03030334567", Date = new DateOnly(2025,09,09), Time = new TimeOnly(10,00), DiagnosesJson = "[\"TBE\",\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 4,  LabNumber = "LAB-20250909-DDD44444", Name = "Anne Larsen",      Personnummer = "04040445678", Date = new DateOnly(2025,09,09), Time = new TimeOnly(10,30), DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 5,  LabNumber = "LAB-20250909-EEE55555", Name = "Marius Bakke",     Personnummer = "05050556789", Date = new DateOnly(2025,09,09), Time = new TimeOnly(11,00), DiagnosesJson = "[\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 6,  LabNumber = "LAB-20250909-FFF66666", Name = "Ingrid Lie",       Personnummer = "06060667890", Date = new DateOnly(2025,09,09), Time = new TimeOnly(11,15), DiagnosesJson = "[\"Malaria\",\"TBE\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 7,  LabNumber = "LAB-20250909-GGG77777", Name = "Jonas Moen",       Personnummer = "07070778901", Date = new DateOnly(2025,09,09), Time = new TimeOnly(11,45), DiagnosesJson = "[\"TBE\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 8,  LabNumber = "LAB-20250909-HHH88888", Name = "Camilla Johansen", Personnummer = "08080889012", Date = new DateOnly(2025,09,09), Time = new TimeOnly(12,00), DiagnosesJson = "[\"Dengue\",\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 9,  LabNumber = "LAB-20250909-III99999", Name = "Andreas Solheim",  Personnummer = "09090990123", Date = new DateOnly(2025,09,09), Time = new TimeOnly(12,30), DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]", CreatedAtUtc = DateTime.UtcNow },
-            new Order { Id = 10, LabNumber = "LAB-20250909-JJJ00000", Name = "Sofie Berg",       Personnummer = "10101001234", Date = new DateOnly(2025,09,09), Time = new TimeOnly(13,00), DiagnosesJson = "[\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow }
-        );
+            new Order { Id = 1, LabNumber = "LAB-20250909-AAA11111", Name = "Ola Nordmann", Personnummer = "01010112345", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(9, 15), DiagnosesJson = "[\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 2, LabNumber = "LAB-20250909-BBB22222", Name = "Kari Nordmann", Personnummer = "02020223456", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(9, 30), DiagnosesJson = "[\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 3, LabNumber = "LAB-20250909-CCC33333", Name = "Per Hansen", Personnummer = "03030334567", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(10, 00), DiagnosesJson = "[\"TBE\",\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 4, LabNumber = "LAB-20250909-DDD44444", Name = "Anne Larsen", Personnummer = "04040445678", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(10, 30), DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 5, LabNumber = "LAB-20250909-EEE55555", Name = "Marius Bakke", Personnummer = "05050556789", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(11, 00), DiagnosesJson = "[\"Dengue\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 6, LabNumber = "LAB-20250909-FFF66666", Name = "Ingrid Lie", Personnummer = "06060667890", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(11, 15), DiagnosesJson = "[\"Malaria\",\"TBE\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 7, LabNumber = "LAB-20250909-GGG77777", Name = "Jonas Moen", Personnummer = "07070778901", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(11, 45), DiagnosesJson = "[\"TBE\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 8, LabNumber = "LAB-20250909-HHH88888", Name = "Camilla Johansen", Personnummer = "08080889012", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(12, 00), DiagnosesJson = "[\"Dengue\",\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 9, LabNumber = "LAB-20250909-III99999", Name = "Andreas Solheim", Personnummer = "09090990123", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(12, 30), DiagnosesJson = "[\"Hantavirus – Puumalavirus (PuV)\"]", CreatedAtUtc = DateTime.UtcNow },
+            new Order { Id = 10, LabNumber = "LAB-20250909-JJJ00000", Name = "Sofie Berg", Personnummer = "10101001234", Date = new DateOnly(2025, 09, 09), Time = new TimeOnly(13, 00), DiagnosesJson = "[\"Malaria\"]", CreatedAtUtc = DateTime.UtcNow });
+
+        b.Entity<User>(e =>
+            {
+                e.HasIndex(x => x.Username).IsUnique();
+                e.Property(x => x.Username).HasMaxLength(50);
+                e.Property(x => x.Role).HasMaxLength(20);
+            });
+
+        b.Entity<User>().HasData(new User
+        {
+            Id = 1,
+            Username = "admin",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+            Role = "admin",
+            CreatedAtUtc = DateTime.UtcNow
+        });
+        
     }
 }

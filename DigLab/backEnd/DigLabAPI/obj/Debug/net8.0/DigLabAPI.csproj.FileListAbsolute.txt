@@ -134,3 +134,12 @@
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/obj/Debug/net8.0/DigLabAPI.pdb
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/obj/Debug/net8.0/DigLabAPI.genruntimeconfig.cache
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/obj/Debug/net8.0/ref/DigLabAPI.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/BCrypt.Net-Next.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Abstractions.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.JsonWebTokens.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Logging.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll

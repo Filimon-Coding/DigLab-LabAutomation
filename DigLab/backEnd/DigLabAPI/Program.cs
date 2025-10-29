@@ -1,9 +1,14 @@
+
+
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using DigLabAPI.Data;
 using DigLabAPI.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +22,15 @@ var connString     = builder.Configuration.GetConnectionString("DigLabDb")
     ?? throw new InvalidOperationException("Missing connection string 'DigLabDb'");
 
 // ---- Services ----
+
+
 builder.Services.AddCors(o =>
     o.AddPolicy("AllowFrontend", p =>
         p.WithOrigins(frontendOrigin)
          .AllowAnyHeader()
          .AllowAnyMethod())
 );
+
 
 builder.Services.AddHttpClient("py", c => c.BaseAddress = new Uri(pyBaseUrl));
 
@@ -48,6 +56,22 @@ builder.Services.AddSwaggerGen(c =>
     c.MapType<TimeOnly>(() => new OpenApiSchema { Type = "string", Format = "time" });
 });
 
+
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(o =>
+    {
+        var key = builder.Configuration["Jwt:Key"]!;
+        o.TokenValidationParameters = new TokenValidationParameters{
+            ValidateIssuer = true, ValidateAudience = true, ValidateIssuerSigningKey = true, ValidateLifetime = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+        };
+    });
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Ensure storage dirs exist at boot
@@ -64,6 +88,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 app.MapControllers();
 app.MapGet("/", () => Results.Ok("DigLab API is running"));
