@@ -86,11 +86,30 @@ public class DigLabDb : DbContext
         b.Entity<User>().HasData(new User
         {
             Id = 1,
-            Username = "admin",
+            // Login = WorkerID
+            Username   = "admin",
+            WorkerId   = "admin",
+            FirstName  = "System",
+            LastName   = "Administrator",
+            HprNumber  = "",                    // tom er ok hvis ikke relevant for admin
+            Profession = Profession.Other,      // eller Profession.Bioengineer/Doctor/Nurse
+            Role       = "admin",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
-            Role = "admin",
             CreatedAtUtc = DateTime.UtcNow
         });
+
+            b.Entity<User>(e =>
+            {
+                e.HasIndex(x => x.Username).IsUnique();
+                e.HasIndex(x => x.WorkerId).IsUnique();
+                e.Property(x => x.Username).HasMaxLength(50);
+                e.Property(x => x.WorkerId).HasMaxLength(50);
+                e.Property(x => x.HprNumber).HasMaxLength(50);
+                e.Property(x => x.FirstName).HasMaxLength(100);
+                e.Property(x => x.LastName).HasMaxLength(100);
+                e.Property(x => x.Role).HasMaxLength(20);
+            });
+
         
     }
 }
