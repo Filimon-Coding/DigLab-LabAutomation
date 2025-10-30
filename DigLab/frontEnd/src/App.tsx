@@ -13,13 +13,6 @@ import "./index.css";
 function hasToken() {
   return !!localStorage.getItem("token");
 }
-function getFirstName() {
-  return localStorage.getItem("firstName") ?? "";
-}
-function getWorkerId() {
-  return localStorage.getItem("workerId") ?? "";
-}
-function cap(s: string){ return s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : ""; }
 
 function safe(s?: string|null){ return (s ?? "").trim(); }
 function first3(n: string){ return n ? (n[0].toUpperCase() + n.slice(1).toLowerCase()).slice(0,3) : ""; }

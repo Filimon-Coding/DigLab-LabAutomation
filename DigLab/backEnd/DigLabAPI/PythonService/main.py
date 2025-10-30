@@ -20,14 +20,13 @@ from pydantic import BaseModel, Field
 
 from pdf_form import generate_lab_form_pdf
 
-# -----------------------------------------------------------------------------
+
 # App
-# -----------------------------------------------------------------------------
+
 app = FastAPI(title="DigLab PyService", version="1.2.0")
 
-# -----------------------------------------------------------------------------
 # Config / constants
-# -----------------------------------------------------------------------------
+
 DIAGNOSES = ["Dengue", "Malaria", "TBE", "Hantavirus – Puumalavirus (PuV)"]
 LABNUM_RE = re.compile(r"LAB-\d{8}-[A-Z0-9]{8}")
 

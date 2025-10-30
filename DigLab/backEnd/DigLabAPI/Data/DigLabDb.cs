@@ -82,7 +82,8 @@ public class DigLabDb : DbContext
                 e.Property(x => x.Username).HasMaxLength(50);
                 e.Property(x => x.Role).HasMaxLength(20);
             });
-
+            // tom er ok hvis ikke relevant for admin
+            // eller Profession.Bioengineer/Doctor/Nurse
         b.Entity<User>().HasData(new User
         {
             Id = 1,
@@ -91,8 +92,8 @@ public class DigLabDb : DbContext
             WorkerId   = "1234",
             FirstName  = "System",
             LastName   = "Administrator",
-            HprNumber  = "",                    // tom er ok hvis ikke relevant for admin
-            Profession = Profession.Other,      // eller Profession.Bioengineer/Doctor/Nurse
+            HprNumber  = "",                    
+            Profession = Profession.Other,      
             Role       = "admin",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
             CreatedAtUtc = DateTime.UtcNow

@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
+import { postForm, postJson } from "../api"; // uses Authorization: Bearer <token>
 
 type Mark = "positive" | "negative" | "inconclusive" | "none";
 type AnalysisResult = {
@@ -15,11 +16,6 @@ type AnalysisResult = {
   marks?: Record<string, Mark>;
   [k: string]: any;
 };
-
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5126";
-// If your finalize endpoint differs, change this builder:
-const finalizeUrl = (lab: string) =>
-  `${API_BASE}/api/orders/${encodeURIComponent(lab)}/finalize`;
 
 export default function Scan() {
   const [file, setFile] = useState<File | null>(null);
@@ -55,24 +51,21 @@ export default function Scan() {
       setNotice(null);
       setAnalysis(null);
       setOverrides({});
+
       const form = new FormData();
-      form.append("file", file);
-      const resp = await fetch(`${API_BASE}/scan/analyze`, {
-        method: "POST",
-        body: form,
-      });
+      form.append("file", file); // (fixed) removed duplicate append
+
+      // postForm attaches Authorization automatically
+      const resp: Response = await postForm(`/scan/analyze`, form);
       if (!resp.ok) throw new Error((await resp.text()) || resp.statusText);
+
       const json = await resp.json();
-      // If controller returned { analyzer, saved }, pick analyzer; else use json
       const payload: AnalysisResult = json?.analyzer ?? json;
       setAnalysis(payload);
 
-      // (optional) show where it saved)
-      if (json?.saved?.dir) {
-        setNotice(`Saved file to ${json.saved.dir}`);
-      }
+      if (json?.saved?.dir) setNotice(`Saved file to ${json.saved.dir}`);
 
-      const req = (json.found?.diagnoses ?? []) as string[];
+      const req = (payload.found?.diagnoses ?? []) as string[];
       const initial: Record<string, ""> = {};
       req.forEach((d) => (initial[d] = ""));
       setOverrides(initial);
@@ -127,7 +120,6 @@ export default function Scan() {
     );
   }
 
-  // ---------- SAVE / FINALIZE ----------
   function markToUpper(m: Mark | "") {
     return m ? m.toUpperCase() : "NONE";
   }
@@ -146,34 +138,25 @@ export default function Scan() {
       const payload = {
         labNumber: lab,
         requested,
-        // Per-test results to persist
         results: rows.map((r) => ({
           diagnosis: r.d,
-          auto: markToUpper(r.auto),     // e.g. "POSITIVE"
+          auto: markToUpper(r.auto),
           final: markToUpper(r.final),
-          overridden: !!overrides[r.d],  // true if user set an override
+          overridden: !!overrides[r.d],
         })),
         meta: {
-          // Useful extra fields for server-side validation/auditing
           personnummer: analysis.found?.personnummer ?? null,
           name: analysis.found?.name ?? null,
           date: analysis.found?.date ?? null,
           time: analysis.found?.time ?? null,
-          // you can add confidence/result if your backend wants it
           result: analysis.result ?? null,
           confidence: analysis.confidence ?? null,
         },
       };
 
-      const resp = await fetch(finalizeUrl(lab), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!resp.ok) {
-        const txt = await resp.text().catch(() => "");
-        throw new Error(`Save failed (${resp.status}) ${txt}`);
-      }
+      // (fixed) use postJson so Authorization is included
+    await postJson(`/api/orders/${encodeURIComponent(lab)}/finalize`, payload);
+
 
       setNotice("Saved to history.");
     } catch (e: any) {

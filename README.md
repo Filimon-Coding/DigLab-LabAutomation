@@ -8,6 +8,11 @@ This project is split into two parts:
 - **backEnd/** → ASP.NET Core 8 Web API (`DigLabAPI`)
 - **frontEnd/** → React + TypeScript (Vite)
 
+
+---
+
+Demo av projekt : https://www.youtube.com/watch?v=JGLd8u45dEo
+
 ---
 
 ##  Backend (DigLabAPI)

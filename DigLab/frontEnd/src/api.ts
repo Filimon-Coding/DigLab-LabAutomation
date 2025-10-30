@@ -1,37 +1,58 @@
 // src/api.ts
+export const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5126";
 
-export const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5100";
-
-// Henter token fra localStorage og bygger korrekt header
-export function authHeader(): Record<string, string> {
+function authHeaders(extra: HeadersInit = {}) {
   const t = localStorage.getItem("token");
-  return t ? { Authorization: `Bearer ${t}` } : {};
+  return t
+    ? { ...extra, Authorization: `Bearer ${t}` }
+    : extra;
 }
 
-// POST-kall med JSON-body og token
-export async function postJson<T>(url: string, body: any): Promise<T> {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...authHeader(),
-  };
+export async function getJson<T = any>(path: string) {
+  const r = await fetch(`${API_BASE}${path}`, {
+    headers: authHeaders({ "Accept":"application/json" }),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  return r.json() as Promise<T>;
+}
 
-  const resp = await fetch(API_BASE + url, {
+export async function postJson<T = any>(path: string, body: any) {
+  const r = await fetch(`${API_BASE}${path}`, {
     method: "POST",
-    headers,
+    headers: authHeaders({ "Content-Type":"application/json", "Accept":"application/json" }),
     body: JSON.stringify(body),
   });
-
-  if (!resp.ok) throw new Error(await resp.text());
-  return resp.json();
+  if (!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  return r.json() as Promise<T>;
 }
 
-// GET-kall med token
-export async function getJson<T>(url: string): Promise<T> {
-  const headers: Record<string, string> = {
-    ...authHeader(),
-  };
+export async function postForm<T = any>(path: string, form: FormData) {
+  const r = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: authHeaders(), // let browser set multipart boundary
+    body: form,
+  });
+  if (!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  // caller decides whether to .json() or .blob(); return Response:
+  return (r as unknown) as T;
+}
 
-  const resp = await fetch(API_BASE + url, { headers });
-  if (!resp.ok) throw new Error(await resp.text());
-  return resp.json();
+export async function postForBlob(path: string, body: any) {
+  const r = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: authHeaders({ "Content-Type":"application/json" }),
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  return r.blob();
+}
+
+export async function getBlob(path: string) {
+  const r = await fetch(`${API_BASE}${path}`, {
+    headers: authHeaders(),
+    cache: "no-store",
+  });
+  if (!r.ok) throw new Error(await r.text().catch(()=>r.statusText));
+  return r.blob();
 }

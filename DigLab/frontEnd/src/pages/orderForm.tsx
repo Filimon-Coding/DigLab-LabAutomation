@@ -1,9 +1,11 @@
+import { getJson, postForBlob } from "../api";
+
 import { useState } from "react";
+
 
 const DIAGNOSES = ["Dengue", "Malaria", "TBE", "Hantavirus – Puumalavirus (PuV)"] as const;
 type Diagnosis = typeof DIAGNOSES[number];
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5126";
 
 export default function OrderForm(){
   const [pnr, setPnr] = useState("");
@@ -28,49 +30,70 @@ export default function OrderForm(){
     setFirstName(""); setMiddleName(""); setLastName(""); setAddress(""); setPostal(""); setCity("");
   }
 
-  async function handleFetch(){
-    setError(null); clearPerson();
-    if (!/^\d{11}$/.test(pnr)){ setError("Personnummer må være 11 siffer."); return; }
+  // ---------- FETCH PERSON ----------
+  async function handleFetch() {
+    setError(null);
+    clearPerson();
+    if (!/^\d{11}$/.test(pnr)) {
+      setError("Personnummer må være 11 siffer.");
+      return;
+    }
     setLoading(true);
-    try{
-      const res = await fetch(`${API_BASE}/api/persons/by-pnr/${pnr}`);
-      if (res.status === 404){ setError("Fant ikke person."); return; }
-      if (!res.ok){ setError(`Oppslag feilet (${res.status})`); return; }
-      const p = await res.json();
+    try {
+      // Use helper (adds Authorization) — no preflight fetch
+      const p = await getJson<any>(`/api/persons/by-pnr/${pnr}`);
       setFirstName(p.firstName ?? "");
       setMiddleName(p.middleName ?? "");
       setLastName(p.lastName ?? "");
       setAddress([p.addressLine1, p.addressLine2].filter(Boolean).join(", "));
       setPostal(p.postalCode ?? "");
       setCity(p.city ?? "");
-    }catch{ setError("Nettverksfeil ved oppslag."); }
-    finally{ setLoading(false); }
+    } catch (e: any) {
+      const msg = typeof e?.message === "string" ? e.message : "";
+      if (msg.includes("404")) setError("Fant ikke person.");
+      else setError("Nettverksfeil ved oppslag.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  async function handleSend(e: React.FormEvent){
-    e.preventDefault(); setError(null);
-    if (!/^\d{11}$/.test(pnr)){ setError("Personnummer må være 11 siffer."); return; }
-    if (dx.length === 0){ setError("Velg minst én diagnose."); return; }
+  // ---------- CREATE ORDER + DOWNLOAD PDF ----------
+  async function handleSend(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+
+    if (!/^\d{11}$/.test(pnr)) {
+      setError("Personnummer må være 11 siffer.");
+      return;
+    }
+    if (dx.length === 0) {
+      setError("Velg minst én diagnose.");
+      return;
+    }
 
     setLoading(true);
-    try{
+    try {
       const payload = { personnummer: pnr, diagnoses: dx, date, time };
-      const res = await fetch(`${API_BASE}/api/orders`, {
-        method:"POST", headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-      if (res.status === 404){ setError("Person finnes ikke i registeret."); return; }
-      if (!res.ok){ const t = await res.text(); setError(`Feil ved lagring/generering: ${res.status} ${t}`); return; }
 
-      // PDF download
-      const blob = await res.blob();
+      // Single POST that returns the PDF as a blob (Authorization added by helper)
+      const blob = await postForBlob(`/api/orders`, payload);
+
+      // Download
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `DigLab-${new Date().toISOString().replace(/[:T]/g,"").slice(0,14)}.pdf`;
-      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    }catch{ setError("Nettverksfeil ved innsending."); }
-    finally{ setLoading(false); }
+      a.download = `DigLab-${new Date().toISOString().replace(/[:T]/g, "").slice(0, 14)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e: any) {
+      const msg = typeof e?.message === "string" ? e.message : "";
+      if (msg.includes("404")) setError("Person finnes ikke i registeret.");
+      else setError(`Feil ved lagring/generering: ${msg || "ukjent feil"}`);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

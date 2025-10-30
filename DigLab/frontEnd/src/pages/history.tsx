@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getJson, getBlob } from "../api";
 
 type OrderView = {
   labNumber: string;
@@ -22,28 +23,22 @@ type OrderDetails = {
   requested: string[];
   results: ResultRow[];
   overriddenAny?: boolean;
-  pdfUrl?: string; // server decides (results first, then forms)
+  pdfUrl?: string; // server may set; we still request prefer=results for view/download
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5126";
-
-/* ---------- Download helper (explicit only) ---------- */
+/* ---------- Download helper (auth + blob) ---------- */
 async function downloadResultsPdf(lab: string) {
-  const url = `${API_BASE}/api/orders/${encodeURIComponent(lab)}/pdf?prefer=results&ts=${Date.now()}`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) {
-    const t = await res.text().catch(() => "");
-    alert(`No analyzed file found yet (${res.status}). ${t}`);
-    return;
-  }
-  const blob = await res.blob();
+  const blob = await getBlob(
+    `/api/orders/${encodeURIComponent(lab)}/pdf?prefer=results&ts=${Date.now()}`
+  );
+  const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = url;
   a.download = `DigLab-${lab}-results.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
-  URL.revokeObjectURL(a.href);
+  URL.revokeObjectURL(url);
 }
 
 /* ---------- Inline PDF modal (uses blob URL) ---------- */
@@ -63,9 +58,14 @@ function PdfModal({
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", onKey);
-    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
   }, [onClose]);
 
   return (
@@ -75,13 +75,18 @@ function PdfModal({
       aria-label={title || "PDF preview"}
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, background: "rgba(0,0,0,.55)",
-        display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000,
-        padding: "4vw"
+        position: "fixed",
+        inset: 0,
+        background: "rgba(0,0,0,.55)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 1000,
+        padding: "4vw",
       }}
     >
       <div
-        onClick={(e)=>e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
           width: "min(100%, 92vw)",
           height: "min(92vh, 100%)",
@@ -92,26 +97,44 @@ function PdfModal({
           boxShadow: "0 20px 40px rgba(16,24,40,.2)",
           display: "flex",
           flexDirection: "column",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
-        <div style={{
-          display:"flex", alignItems:"center", justifyContent:"space-between",
-          gap:12, padding:"10px 12px", borderBottom:"1px solid var(--border)"
-        }}>
-          <div style={{fontWeight:700}}>{title || "PDF"}</div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: "10px 12px",
+            borderBottom: "1px solid var(--border)",
+          }}
+        >
+          <div style={{ fontWeight: 700 }}>{title || "PDF"}</div>
           <div className="btn-row">
-            <button className="outline" onClick={onClose}>Close</button>
+            <button className="outline" onClick={onClose}>
+              Close
+            </button>
           </div>
         </div>
 
-        <div style={{flex:1, background:"#111", display:"flex", alignItems:"center", justifyContent:"center"}}>
-          {loading && <div style={{color:"#ddd", padding:16}}>Loading PDF…</div>}
+        <div
+          style={{
+            flex: 1,
+            background: "#111",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          {loading && <div style={{ color: "#ddd", padding: 16 }}>Loading PDF…</div>}
           {!loading && error && (
-            <div className="bad" style={{padding:16}}>Failed to preview PDF: {error}</div>
+            <div className="bad" style={{ padding: 16 }}>
+              Failed to preview PDF: {error}
+            </div>
           )}
           {!loading && !error && blobUrl && (
-            <embed src={blobUrl} type="application/pdf" style={{width:"100%", height:"100%", border:0}} />
+            <embed src={blobUrl} type="application/pdf" style={{ width: "100%", height: "100%", border: 0 }} />
           )}
         </div>
       </div>
@@ -119,7 +142,7 @@ function PdfModal({
   );
 }
 
-export default function History(){
+export default function History() {
   const [items, setItems] = useState<OrderView[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -136,62 +159,60 @@ export default function History(){
 
   useEffect(() => {
     (async () => {
-      try{
-        const res = await fetch(`${API_BASE}/api/orders?take=50`);
-        if (res.ok) setItems(await res.json());
-      } finally { setLoading(false); }
+      try {
+        const data = await getJson<OrderView[]>(`/api/orders?take=50`);
+        setItems(data);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
-  async function openRow(lab: string){
-    setSelected(curr => curr === lab ? null : lab);
-    if (!details[lab]){
+  async function openRow(lab: string) {
+    setSelected((curr) => (curr === lab ? null : lab));
+    if (!details[lab]) {
       setLoadingDetails(lab);
-      try{
-        const res = await fetch(`${API_BASE}/api/orders/${encodeURIComponent(lab)}`);
-        if (res.ok){
-          const d = (await res.json()) as OrderDetails;
-          // keep server pdfUrl; we call with prefer=results when fetching for view/download
-          if (!d.pdfUrl) d.pdfUrl = `/api/orders/${encodeURIComponent(lab)}/pdf`;
-          setDetails(prev => ({...prev, [lab]: d}));
-        }
-      } finally { setLoadingDetails(null); }
+      try {
+        const d = await getJson<OrderDetails>(`/api/orders/${encodeURIComponent(lab)}`);
+        if (!d.pdfUrl) d.pdfUrl = `/api/orders/${encodeURIComponent(lab)}/pdf`;
+        setDetails((prev) => ({ ...prev, [lab]: d }));
+      } finally {
+        setLoadingDetails(null);
+      }
     }
   }
 
-  async function openPreview(lab: string){
-    if (previewBlobUrl) { URL.revokeObjectURL(previewBlobUrl); setPreviewBlobUrl(null); }
+  async function openPreview(lab: string) {
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+      setPreviewBlobUrl(null);
+    }
     setPreviewError(null);
     setPreviewLoading(true);
     setPreviewOpen(true);
     setPreviewTitle(`PDF – ${lab}`);
 
-    try{
-      // force analyzed file + cache-bust
-      const url = `${API_BASE}/api/orders/${encodeURIComponent(lab)}/pdf?prefer=results&ts=${Date.now()}`;
-      const res = await fetch(url, { cache: "no-store" });
-      if (!res.ok){
-        const t = await res.text().catch(()=> "");
-        throw new Error(`No analyzed file yet (${res.status}). ${t}`);
-      }
-      const blob = await res.blob();
+    try {
+      const blob = await getBlob(
+        `/api/orders/${encodeURIComponent(lab)}/pdf?prefer=results&ts=${Date.now()}`
+      );
       const objUrl = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
       setPreviewBlobUrl(objUrl);
-    }catch(e:any){
+    } catch (e: any) {
       setPreviewError(e?.message || "Unknown error");
-    }finally{
+    } finally {
       setPreviewLoading(false);
     }
   }
 
-  function closePreview(){
+  function closePreview() {
     if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
     setPreviewBlobUrl(null);
     setPreviewOpen(false);
   }
 
   const rows = useMemo(
-    () => items.map(x => ({...x, overridden: details[x.labNumber]?.overriddenAny === true})),
+    () => items.map((x) => ({ ...x, overridden: details[x.labNumber]?.overriddenAny === true })),
     [items, details]
   );
 
@@ -200,7 +221,7 @@ export default function History(){
       <h1>History</h1>
       <p className="lead">Recent orders (last 50).</p>
 
-      <div className="card" style={{overflowX:"auto"}}>
+      <div className="card" style={{ overflowX: "auto" }}>
         <table className="table">
           <thead>
             <tr>
@@ -215,19 +236,31 @@ export default function History(){
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={8}>Loading…</td></tr>}
-            {!loading && rows.length === 0 && <tr><td colSpan={8}>No data.</td></tr>}
+            {loading && (
+              <tr>
+                <td colSpan={8}>Loading…</td>
+              </tr>
+            )}
+            {!loading && rows.length === 0 && (
+              <tr>
+                <td colSpan={8}>No data.</td>
+              </tr>
+            )}
 
-            {rows.map(x => {
+            {rows.map((x) => {
               const isOpen = selected === x.labNumber;
               const det = details[x.labNumber];
 
               return (
                 <>
-                  <tr key={x.labNumber} data-clickable="true" onClick={()=>openRow(x.labNumber)}>
+                  <tr key={x.labNumber} data-clickable="true" onClick={() => openRow(x.labNumber)}>
                     <td>
                       {x.labNumber}
-                      {details[x.labNumber]?.overriddenAny && <span className="pill" style={{marginLeft:8}}>overridden</span>}
+                      {details[x.labNumber]?.overriddenAny && (
+                        <span className="pill" style={{ marginLeft: 8 }}>
+                          overridden
+                        </span>
+                      )}
                     </td>
                     <td>{x.name}</td>
                     <td>{x.personnummer ?? "—"}</td>
@@ -236,7 +269,13 @@ export default function History(){
                     <td>{x.diagnoses?.join(", ")}</td>
                     <td>{new Date(x.createdAtUtc).toLocaleString()}</td>
                     <td>
-                      <button className="outline" onClick={(e)=>{ e.stopPropagation(); openRow(x.labNumber); }}>
+                      <button
+                        className="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openRow(x.labNumber);
+                        }}
+                      >
                         {isOpen ? "Hide" : "Open"}
                       </button>
                     </td>
@@ -248,16 +287,25 @@ export default function History(){
                         {loadingDetails === x.labNumber && <div>Loading details…</div>}
                         {det && (
                           <div className="details">
-                            <div className="card" style={{marginTop:12}}>
+                            <div className="card" style={{ marginTop: 12 }}>
                               <div className="card-header">
                                 <div>
-                                  <div className="card-title" style={{margin:0}}>Details</div>
-                                  <div className="card-sub">Requested: {det.requested?.join(", ") || "—"}</div>
-                                  {det.overriddenAny && <div className="card-sub">One or more results were overridden.</div>}
+                                  <div className="card-title" style={{ margin: 0 }}>
+                                    Details
+                                  </div>
+                                  <div className="card-sub">
+                                    Requested: {det.requested?.join(", ") || "—"}
+                                  </div>
+                                  {det.overriddenAny && (
+                                    <div className="card-sub">One or more results were overridden.</div>
+                                  )}
                                 </div>
                                 <div className="btn-row">
                                   <>
-                                    <button className="quiet" onClick={() => openPreview(det.labNumber ?? x.labNumber)}>
+                                    <button
+                                      className="quiet"
+                                      onClick={() => openPreview(det.labNumber ?? x.labNumber)}
+                                    >
                                       View analyzed file
                                     </button>
                                     <button onClick={() => downloadResultsPdf(det.labNumber ?? x.labNumber)}>
@@ -277,7 +325,7 @@ export default function History(){
                                   </tr>
                                 </thead>
                                 <tbody>
-                                  {det.results?.map(r => (
+                                  {det.results?.map((r) => (
                                     <tr key={r.diagnosis}>
                                       <td>{r.diagnosis}</td>
                                       <td>{r.auto ?? "—"}</td>
@@ -300,7 +348,6 @@ export default function History(){
         </table>
       </div>
 
-      {/* Blob-based modal viewer (no browser download) */}
       {previewOpen && (
         <PdfModal
           blobUrl={previewBlobUrl}
