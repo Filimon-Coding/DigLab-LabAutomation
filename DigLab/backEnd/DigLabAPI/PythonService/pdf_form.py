@@ -11,9 +11,9 @@ from reportlab.lib.units import mm
 
 ALL_DIAGNOSES = ["Dengue", "Malaria", "TBE", "Hantavirus – Puumalavirus (PuV)"]
 
-BOX_BLANK = "[    ]"  # <-- four spaces; your analyzer searches for this
-BOX_X     = "[X]"
-BOX_EMPTY = "[ ]"
+BOX_BLANK = "[    ]"  # 4 spaces, To make easier for human mistakes 
+BOX_X     = "[X]"     # 1 space, registert automatic from pdf form
+BOX_EMPTY = "[ ]"     # 1 space, automaticly left empty, if no dignoesis
 
 def generate_lab_form_pdf(
     out_pdf: Path,
