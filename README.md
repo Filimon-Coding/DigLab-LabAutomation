@@ -72,9 +72,10 @@ DigLab/
 
 ## 4. Installation and Setup
 
-Open **three separate terminals** in your IDE (one per service). Keep all three running.
-
 ### 4.1 Clone the repository
+
+### Open **three separate terminals** in your IDE (one per service (Backend,FrontEnd, PythonService)). Keep all three running.
+
 
 ```bash
 git clone https://github.com/Filimon-Coding/DATA3770-Helseteknologi-prosjekt.git
