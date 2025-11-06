@@ -126,9 +126,10 @@ npm run dev
 * Confirm the OCR service is running at **[http://localhost:7001](http://localhost:7001)**.
 
 ### 4.6 Optional — Combined startup
+Works well with Linux system, but might an issue with windows or other OS. 
 
 ```bash
-./autoStart.sh
+./autoStartAllService.sh
 ```
 
 **Service ↔ Port summary**
@@ -151,6 +152,24 @@ npm run dev
 | Admin | admin    | admin123 |
 
 These credentials are stored securely with BCrypt hashing in the database seed file.
+
+## Test Person Number you can use (This are all Synthetic Person data)
+You need only type Person person on Order form. The program will automataclly fill the rest of personal iformasjon. 
+
+
+| Personnummer | Name             | City        |
+| ------------ | ---------------- | ----------- |
+| 01010112345  | Ola Nordmann     | Oslo        |
+| 02020223456  | Kari Nordmann    | Bergen      |
+| 03030334567  | Per Hansen       | Trondheim   |
+| 04040445678  | Anne Larsen      | Tromsø      |
+| 05050556789  | Marius Bakke     | Gjøvik      |
+| 06060667890  | Ingrid Lie       | Fredrikstad |
+| 07070778901  | Jonas Moen       | Lillestrøm  |
+| 08080889012  | Camilla Johansen | Stavanger   |
+| 09090990123  | Andreas Solheim  | Molde       |
+| 10101001234  | Sofie Berg       | Hamar       |
+
 
 ---
 
