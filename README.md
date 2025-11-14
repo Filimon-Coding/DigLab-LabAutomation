@@ -201,9 +201,3 @@ You need only type Person person on Order form. The program will automataclly fi
 * Add automated testing pipelines (Pytest, Jest, Cypress).
 
 ---
-
-## 9. License
-
-This project was developed as part of the **DATA3770 Health Technology** course at **Oslo Metropolitan University** and is released for educational purposes.
-
----
