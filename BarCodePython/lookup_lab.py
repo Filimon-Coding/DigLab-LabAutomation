@@ -5,6 +5,8 @@ Looks up labnummer -> prints personnummer, date, time from samples.csv.
 Usage:
   python3 lookup_lab.py LAB-YYYYMMDD-XXXXXXXXXX
   # or run without args and it will prompt
+
+  
 """
 import sys, csv
 from pathlib import Path
