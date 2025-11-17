@@ -9,7 +9,7 @@
 
 * Associate Professor Tulpesh Patel, Oslo Metropolitan University (OsloMet)
 * Consultant Physician Frank Olav Dahler Pettersen, Oslo University Hospital (OUS)
-  **Submission Date:** 21 November 2025
+* **Submission Date:** 21 November 2025
 
 **GitHub Project Repository (Source Code):**
 [https://github.com/Filimon-Coding/DATA3770-Helseteknologi-prosjekt.git](https://github.com/Filimon-Coding/DATA3770-Helseteknologi-prosjekt.git)
