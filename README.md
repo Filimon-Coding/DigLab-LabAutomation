@@ -195,7 +195,7 @@ You need only type Person person on Order form. The program will automataclly fi
 ## 8. Future Work
 
 * Add **AI-based handwriting recognition** for handwritten forms.
-* Integrate with **HelseID** and **FHIR** for secure interoperability.
+* Integrate with proper ID and Authencation metode for secure interoperability.
 * Implement **data visualization dashboards** for infection statistics.
 * Deploy as containerized microservices using Docker or Kubernetes.
 * Add automated testing pipelines (Pytest, Jest, Cypress).
