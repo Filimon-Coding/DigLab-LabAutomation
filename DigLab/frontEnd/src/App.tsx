@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type JSX } from "react";
-import { NavLink, Route, Routes, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Route, Routes, Navigate, useLocation, useNavigate , Link } from "react-router-dom";
 import FrontPage from "./pages/frontPage";
 import OrderForm from "./pages/orderForm";
 import Scan from "./pages/scan";
@@ -61,9 +61,9 @@ const badge = firstName ? `${first3(firstName)}${workerId}` : workerId || "Accou
   return (
     <nav className="nav">
       <div className="nav-inner container">
-        <div className="brand">
-          <Logo /> DigLab <span className="badge">v1.0</span>
-        </div>
+        <Link to="/" className="brand" style={{ textDecoration: "none", color: "inherit" }}>
+            <Logo /> DigLab <span className="badge">v1.0</span>
+        </Link>
 
         <div style={{ marginLeft: "auto", display: "flex", gap: 6, alignItems: "center" }}>
           <NavLink to="/" end>Home</NavLink>

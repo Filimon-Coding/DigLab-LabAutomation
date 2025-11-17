@@ -143,3 +143,4 @@
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
+/home/neov/Documents/MinCodingLinuxV/Prosjekter/5thSemester/DATA3770HelseteknologiProsjekt/Helseteknologi-prosjekt-Collection/DigLab/backEnd/DigLabAPI/bin/Debug/net8.0/appsettings.example.json

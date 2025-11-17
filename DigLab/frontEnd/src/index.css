@@ -118,6 +118,7 @@ button.quiet{
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
+  color: var(--text);
 }
 .btn-ghost:hover {
   border-color: var(--border);
@@ -131,7 +132,9 @@ button.quiet{
   border: none;
   padding: 8px 10px;
   border-radius: 6px;
+  color: var(--text);
   cursor: pointer;
+  font-size: 14px;
 }
 .menu-item:hover {
   background: color-mix(in oklab, var(--primary) 6%, var(--bg1) 94%);
