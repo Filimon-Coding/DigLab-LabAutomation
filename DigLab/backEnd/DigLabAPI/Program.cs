@@ -22,11 +22,9 @@ var connString     = builder.Configuration.GetConnectionString("DigLabDb")
     ?? throw new InvalidOperationException("Missing connection string 'DigLabDb'");
 
 // ---- Services ----
-
-
 builder.Services.AddCors(o =>
     o.AddPolicy("AllowFrontend", p =>
-        p.WithOrigins(frontendOrigin)
+        p.WithOrigins(frontendOrigin)   
          .AllowAnyHeader()
          .AllowAnyMethod())
 );
