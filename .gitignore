@@ -43,7 +43,9 @@ storage/
 
 # Scripts (optional to ignore)
 Script.sh
-
+IssueFixFile.md 
 
 # Custom
 .fake
+
+
