@@ -22,6 +22,10 @@ var connString     = builder.Configuration.GetConnectionString("DigLabDb")
     ?? throw new InvalidOperationException("Missing connection string 'DigLabDb'");
 
 // ---- Services ----
+
+// --- CORS Policy for React Frontend ---
+// Allows the Vite React app to call the .NET API without being blocked.
+// Required for local development and production deployment.
 builder.Services.AddCors(o =>
     o.AddPolicy("AllowFrontend", p =>
         p.WithOrigins(frontendOrigin)   
@@ -54,7 +58,9 @@ builder.Services.AddSwaggerGen(c =>
     c.MapType<TimeOnly>(() => new OpenApiSchema { Type = "string", Format = "time" });
 });
 
-
+// --- JWT Authentication Setup ---
+// This config enables secure login across the entire API.
+// It validates issuer, audience, signing key, and token expiration.
 
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
