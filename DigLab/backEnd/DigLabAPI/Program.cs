@@ -23,9 +23,8 @@ var connString     = builder.Configuration.GetConnectionString("DigLabDb")
 
 // ---- Services ----
 
-// --- CORS Policy for React Frontend ---
-// Allows the Vite React app to call the .NET API without being blocked.
-// Required for local development and production deployment.
+ // Allows the Vite React app to call the .NET API without being blocked.
+ // Required for local development and production deployment.
 builder.Services.AddCors(o =>
     o.AddPolicy("AllowFrontend", p =>
         p.WithOrigins(frontendOrigin)   

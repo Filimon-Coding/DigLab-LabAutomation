@@ -1,4 +1,6 @@
-// src/api.ts
+// The main work of this TS 
+// It sende upload pdf file to the backend OCR enpoint and 
+// then backend forwards to file to fast api endpoints 
 export const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:5126";
 
 function authHeaders(extra: HeadersInit = {}) {
