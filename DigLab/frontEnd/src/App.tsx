@@ -171,10 +171,10 @@ export default function App() {
           <Route path="/account/profile" element={<RequireAuth><div className="card">Profile page (coming soon)</div></RequireAuth>} />
           <Route path="/admin/users" element={<RequireAuth><UsersAdmin /></RequireAuth>} />
 
-          {/* protected */}
-          <Route path="/order" element={<RequireAuth><OrderForm /></RequireAuth>} />
-          <Route path="/scan" element={<RequireAuth><Scan /></RequireAuth>} />
-          <Route path="/history" element={<RequireAuth><History /></RequireAuth>} />
+          {/* protected Alle three main page beside the login and user/change passowrd page */}
+          <Route path="/order" element={<RequireAuth><OrderForm /></RequireAuth>} /> {/* Order page: create new lab requests */} 
+          <Route path="/scan" element={<RequireAuth><Scan /></RequireAuth>} /> {/* Scan page: upload PDFs/images to OCR */ }
+          <Route path="/history" element={<RequireAuth><History /></RequireAuth>} /> {/* History page: list and search previous OCR jobs */}
 
           {/* fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
